@@ -1,11 +1,52 @@
 {
-  "title": "Discover the Origins and Evolution of PL/I",
+  "id": "pl1-origins",
+  "title": "Discover the origins and evolution of PL/I.",
   "description": "Learn how PL/I shaped modern mainframe programming.",
+  "simple": true,
   "chapters": [
-    { "title": "Introduction", "parts": ["Theory", "Exercise", "Quiz"] },
-    { "title": "Evolution", "parts": ["Theory", "Exercise", "Final Review"] }
+    {
+      "title": "Overview",
+      "parts": ["Theory", "Final Quiz"],
+      "theory": {
+        "content": "Welcome to the theory section for Overview in Discover the origins and evolution of PL/I.\n\nThis section covers the essential theoretical knowledge you need to master Overview. You'll learn about the core concepts, best practices, and important principles that form the foundation of this topic.\n\nTake your time to read through the material carefully. Understanding the theory is crucial before moving on to practical exercises.",
+        "video": null,
+        "keyConcepts": [
+          "Understanding the fundamental principles and concepts",
+          "Learning the theoretical foundations",
+          "Exploring real-world applications and examples"
+        ]
+      },
+      "exercise": null,
+      "quiz": {
+        "questions": [
+          {
+            "id": 1,
+            "question": "What is the main purpose of this chapter?",
+            "options": [
+              "To understand basic concepts",
+              "To learn advanced techniques",
+              "To master the fundamentals",
+              "All of the above"
+            ],
+            "correct": 3
+          },
+          {
+            "id": 2,
+            "question": "Which of the following is a key concept covered?",
+            "options": [
+              "Theory and practice",
+              "Practical applications",
+              "Real-world examples",
+              "All of the above"
+            ],
+            "correct": 3
+          }
+        ]
+      }
+    }
   ],
   "resources": [
-    { "label": "IBM PL/I Docs", "url": "https://www.ibm.com/docs/en/pli" }
+    { "label": "PL/I Documentation", "url": "#" },
+    { "label": "CICS Developer Guide", "url": "#" }
   ]
 }

@@ -1,25 +1,16 @@
 import { useState, useEffect } from "react";
 import { ChevronDown, ChevronUp, PlayCircle, Link as LinkIcon, Sun, Moon, Code2, BookOpen, PenTool, CheckCircle } from "lucide-react";
 
-const courses = [
-  { title: "Discover the origins and evolution of PL/I.", id: "pl1-origins", simple: true },
-  { title: "Learn how CICS began and evolved.", id: "cics-evolution", simple: true },
+// Course list - these should match the folder names in /courses
+const courseIds = [
+  { title: "Discover the origins and evolution of PL/I.", id: "pl1-origins" },
+  { title: "Learn how CICS began and evolved.", id: "cics-evolution" },
   { title: "Setup Guide PL/I & CICS", id: "setup-guide" },
   { title: "PL/I Basics", id: "pl1-basics" },
   { title: "CICS Basics", id: "cics-basics" },
   { title: "PL/I With CICS Basic", id: "pl1-cics-basic" },
   { title: "PL/I With CICS Advanced", id: "pl1-cics-advanced" },
   { title: "Master PL/I and CICS integration.", id: "master-integration" },
-];
-
-const defaultChapters = [
-  { title: "Introduction", parts: ["Theory", "Exercise", "Final Quiz"] },
-  { title: "Core Concepts", parts: ["Theory", "Exercise", "Final Quiz"] },
-  { title: "Advanced Topics", parts: ["Theory", "Exercise", "Final Quiz"] },
-];
-
-const simpleChapters = [
-  { title: "Overview", parts: ["Theory", "Final Quiz"] },
 ];
 
 // Custom hook for dark mode
@@ -46,7 +37,40 @@ function useDarkMode() {
 
 export default function App() {
   const [selectedCourse, setSelectedCourse] = useState(null);
+  const [courseData, setCourseData] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [darkMode, setDarkMode] = useDarkMode();
+
+  // Load course data when a course is selected
+  useEffect(() => {
+    if (selectedCourse) {
+      setLoading(true);
+      import(`./courses/${selectedCourse.id}/index.json`)
+        .then(module => {
+          setCourseData(module.default);
+          setLoading(false);
+        })
+        .catch(err => {
+          console.error("Failed to load course data:", err);
+          setLoading(false);
+          // Fallback to basic course structure
+          setCourseData({
+            id: selectedCourse.id,
+            title: selectedCourse.title,
+            description: "",
+            simple: selectedCourse.id.includes("origins") || selectedCourse.id.includes("evolution"),
+            chapters: selectedCourse.id.includes("origins") || selectedCourse.id.includes("evolution")
+              ? [{ title: "Overview", parts: ["Theory", "Final Quiz"] }]
+              : [
+                  { title: "Introduction", parts: ["Theory", "Exercise", "Final Quiz"] },
+                  { title: "Core Concepts", parts: ["Theory", "Exercise", "Final Quiz"] },
+                  { title: "Advanced Topics", parts: ["Theory", "Exercise", "Final Quiz"] }
+                ],
+            resources: []
+          });
+        });
+    }
+  }, [selectedCourse]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 dark:from-slate-950 dark:via-blue-950/20 dark:to-indigo-950/30 text-gray-900 dark:text-gray-100 transition-colors duration-500">
@@ -80,7 +104,7 @@ export default function App() {
             <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 font-medium">the Modern Way</p>
           </div>
           <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {courses.map((course) => (
+            {courseIds.map((course) => (
               <div
                 key={course.id}
                 onClick={() => setSelectedCourse(course)}
@@ -112,26 +136,63 @@ export default function App() {
           </div>
         </div>
       ) : (
-        <CoursePage course={selectedCourse} goBack={() => setSelectedCourse(null)} />
+        <CoursePage 
+          course={selectedCourse} 
+          courseData={courseData}
+          loading={loading}
+          goBack={() => {
+            setSelectedCourse(null);
+            setCourseData(null);
+          }} 
+        />
       )}
     </div>
   );
 }
 
-function CoursePage({ course, goBack }) {
+function CoursePage({ course, courseData, loading, goBack }) {
   const [openChapter, setOpenChapter] = useState(0);
   const [selectedChapter, setSelectedChapter] = useState(0);
   const [selectedPart, setSelectedPart] = useState("Theory");
-  const chapters = course.simple ? simpleChapters : defaultChapters;
 
   // Auto-open first chapter and select first part on mount
   useEffect(() => {
-    if (chapters.length > 0) {
+    if (courseData && courseData.chapters && courseData.chapters.length > 0) {
       setOpenChapter(0);
       setSelectedChapter(0);
-      setSelectedPart(chapters[0].parts[0]);
+      const firstPart = courseData.chapters[0].parts?.[0] || "Theory";
+      setSelectedPart(firstPart);
     }
-  }, [course.id]);
+  }, [courseData]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Loading course...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!courseData) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <p className="text-red-600 dark:text-red-400 mb-4">Failed to load course data</p>
+          <button
+            onClick={goBack}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const chapters = courseData.chapters || [];
 
   const handlePartClick = (chapterIndex, part) => {
     setSelectedChapter(chapterIndex);
@@ -151,7 +212,7 @@ function CoursePage({ course, goBack }) {
           Back to Courses
         </button>
         <h2 className="text-xl md:text-2xl font-bold mb-6 md:mb-8 text-gray-800 dark:text-gray-100 leading-tight">
-          {course.title}
+          {courseData.title || course.title}
         </h2>
         <div className="space-y-2">
           {chapters.map((chapter, i) => (
@@ -217,15 +278,15 @@ function CoursePage({ course, goBack }) {
 
           {/* Content based on selected part */}
           {selectedPart === "Theory" && (
-            <TheoryContent chapter={chapters[selectedChapter]} course={course} />
+            <TheoryContent chapter={chapters[selectedChapter]} course={courseData} />
           )}
           
           {selectedPart === "Exercise" && (
-            <ExerciseContent chapter={chapters[selectedChapter]} course={course} />
+            <ExerciseContent chapter={chapters[selectedChapter]} course={courseData} />
           )}
           
-          {selectedPart === "Final Quiz" && (
-            <QuizContent chapter={chapters[selectedChapter]} course={course} />
+          {(selectedPart === "Final Quiz" || selectedPart === "Quiz") && (
+            <QuizContent chapter={chapters[selectedChapter]} course={courseData} />
           )}
         </div>
       </main>
@@ -235,6 +296,15 @@ function CoursePage({ course, goBack }) {
 
 // Theory Content Component
 function TheoryContent({ chapter, course }) {
+  const theoryData = chapter?.theory || {};
+  const content = theoryData.content || `Welcome to the theory section for ${chapter?.title || "this chapter"}.`;
+  const keyConcepts = theoryData.keyConcepts || [
+    "Understanding the fundamental principles and concepts",
+    "Learning the theoretical foundations",
+    "Exploring real-world applications and examples"
+  ];
+  const videoUrl = theoryData.video;
+
   return (
     <div className="space-y-6">
       <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl md:rounded-3xl p-6 md:p-8 shadow-lg border border-gray-200/60 dark:border-gray-800/60">
@@ -243,101 +313,79 @@ function TheoryContent({ chapter, course }) {
             <BookOpen className="text-white" size={24} />
           </div>
           <h2 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100">
-            Theory Content
+            Theory: {chapter?.title || "Chapter"}
           </h2>
         </div>
         
+        {videoUrl && (
+          <div className="mb-6">
+            <div className="relative aspect-video bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 dark:from-gray-800 dark:via-gray-800 dark:to-gray-900 rounded-2xl md:rounded-3xl overflow-hidden shadow-xl border border-gray-300/50 dark:border-gray-700/50">
+              <iframe
+                src={videoUrl}
+                className="absolute inset-0 w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                title="Theory Video"
+              />
+            </div>
+          </div>
+        )}
+        
         <div className="prose prose-lg dark:prose-invert max-w-none">
-          <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-            Welcome to the theory section for <strong>{chapter.title}</strong> in <strong>{course.title}</strong>.
-          </p>
+          <div className="space-y-4 text-gray-700 dark:text-gray-300 whitespace-pre-line">
+            {content.split('\n').map((paragraph, idx) => (
+              <p key={idx} className="leading-relaxed">{paragraph}</p>
+            ))}
+          </div>
           
-          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 rounded-xl p-6 mb-6 border border-blue-200/50 dark:border-blue-800/50">
-            <h3 className="text-xl font-semibold mb-3 text-gray-800 dark:text-gray-100">Key Concepts</h3>
-            <ul className="space-y-2 text-gray-700 dark:text-gray-300">
-              <li className="flex items-start gap-2">
-                <span className="text-blue-500 mt-1">•</span>
-                <span>Understanding the fundamental principles and concepts</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-blue-500 mt-1">•</span>
-                <span>Learning the theoretical foundations</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-blue-500 mt-1">•</span>
-                <span>Exploring real-world applications and examples</span>
-              </li>
-            </ul>
-          </div>
-
-          <div className="space-y-4 text-gray-700 dark:text-gray-300">
-            <p>
-              This section covers the essential theoretical knowledge you need to master <strong>{chapter.title}</strong>. 
-              You'll learn about the core concepts, best practices, and important principles that form the foundation 
-              of this topic.
-            </p>
-            <p>
-              Take your time to read through the material carefully. Understanding the theory is crucial before 
-              moving on to practical exercises.
-            </p>
-          </div>
+          {keyConcepts && keyConcepts.length > 0 && (
+            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 rounded-xl p-6 mt-6 border border-blue-200/50 dark:border-blue-800/50">
+              <h3 className="text-xl font-semibold mb-3 text-gray-800 dark:text-gray-100">Key Concepts</h3>
+              <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+                {keyConcepts.map((concept, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="text-blue-500 mt-1">•</span>
+                    <span>{concept}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl md:rounded-3xl p-6 md:p-8 shadow-lg border border-gray-200/60 dark:border-gray-800/60">
-        <h3 className="text-xl font-bold mb-4 text-gray-800 dark:text-gray-100">Resources</h3>
-        <ul className="space-y-3">
-          <li className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 hover:from-blue-100 hover:to-cyan-100 dark:hover:from-blue-950/50 dark:hover:to-cyan-950/50 cursor-pointer transition-all duration-200 border border-blue-200/50 dark:border-blue-800/50">
-            <LinkIcon size={18} className="text-blue-600 dark:text-blue-400" />
-            <span className="text-base font-semibold text-blue-600 dark:text-blue-400">PL/I Documentation</span>
-          </li>
-          <li className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 hover:from-blue-100 hover:to-cyan-100 dark:hover:from-blue-950/50 dark:hover:to-cyan-950/50 cursor-pointer transition-all duration-200 border border-blue-200/50 dark:border-blue-800/50">
-            <LinkIcon size={18} className="text-blue-600 dark:text-blue-400" />
-            <span className="text-base font-semibold text-blue-600 dark:text-blue-400">CICS Developer Guide</span>
-          </li>
-        </ul>
-      </div>
+      {course?.resources && course.resources.length > 0 && (
+        <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl md:rounded-3xl p-6 md:p-8 shadow-lg border border-gray-200/60 dark:border-gray-800/60">
+          <h3 className="text-xl font-bold mb-4 text-gray-800 dark:text-gray-100">Resources</h3>
+          <ul className="space-y-3">
+            {course.resources.map((resource, idx) => (
+              <li
+                key={idx}
+                className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 hover:from-blue-100 hover:to-cyan-100 dark:hover:from-blue-950/50 dark:hover:to-cyan-950/50 cursor-pointer transition-all duration-200 border border-blue-200/50 dark:border-blue-800/50"
+                onClick={() => resource.url && resource.url !== "#" && window.open(resource.url, "_blank")}
+              >
+                <LinkIcon size={18} className="text-blue-600 dark:text-blue-400" />
+                <span className="text-base font-semibold text-blue-600 dark:text-blue-400">{resource.label}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
 
 // Exercise Content Component
 function ExerciseContent({ chapter, course }) {
-  // Example answers for different exercises
-  const exampleAnswers = {
-    "Introduction": `PROC OPTIONS(MAIN);
-  DCL X FIXED BIN(31);
-  DCL Y FIXED BIN(31);
-  
-  X = 10;
-  Y = 20;
-  PUT SKIP LIST('Sum:', X + Y);
-ENDPROC;`,
-    "Core Concepts": `PROC OPTIONS(MAIN);
-  DCL ARR(10) FIXED BIN(31);
-  DCL I FIXED BIN(31);
-  
-  DO I = 1 TO 10;
-    ARR(I) = I * 2;
-  END;
-ENDPROC;`,
-    "Advanced Topics": `PROC OPTIONS(MAIN);
-  DCL STR CHAR(50) VAR;
-  DCL LEN FIXED BIN(31);
-  
-  STR = 'Hello, PL/I!';
-  LEN = LENGTH(STR);
-  PUT SKIP LIST('Length:', LEN);
-ENDPROC;`,
-    "Overview": `PROC OPTIONS(MAIN);
-  DCL NUM FIXED BIN(31);
-  
-  NUM = 42;
-  PUT SKIP LIST('Number:', NUM);
-ENDPROC;`
-  };
+  const exerciseData = chapter?.exercise || {};
+  const instructions = exerciseData.instructions || "Write your solution in the code editor below.";
+  const hint = exerciseData.hint || "";
+  const correctAnswer = exerciseData.answer || `PROC OPTIONS(MAIN);
+/* Your code goes here */
 
-  const correctAnswer = exampleAnswers[chapter.title] || exampleAnswers["Overview"];
+
+ENDPROC;`;
+  const videoUrl = exerciseData.video;
   
   const [code, setCode] = useState(`PROC OPTIONS(MAIN);
 /* Your code goes here */
@@ -437,13 +485,29 @@ ENDPROC;`);
           
           <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-xl p-6 mb-6 border border-green-200/50 dark:border-green-800/50">
             <h3 className="text-xl font-semibold mb-3 text-gray-800 dark:text-gray-100">Exercise Instructions</h3>
-            <ol className="space-y-3 text-gray-700 dark:text-gray-300 list-decimal list-inside">
-              <li>Read the exercise requirements carefully</li>
-              <li>Write your solution in the code editor below</li>
-              <li>Click "Check Answer" to compare your code with the solution</li>
-              <li>Review the feedback and see the correct answer if needed</li>
-            </ol>
+            <p className="text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">{instructions}</p>
+            {hint && (
+              <div className="mt-4 p-3 bg-green-100 dark:bg-green-900/30 rounded-lg border border-green-300 dark:border-green-700">
+                <p className="text-sm text-gray-700 dark:text-gray-300">
+                  <strong>Hint:</strong> {hint}
+                </p>
+              </div>
+            )}
           </div>
+
+          {videoUrl && (
+            <div className="mb-6">
+              <div className="relative aspect-video bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 dark:from-gray-800 dark:via-gray-800 dark:to-gray-900 rounded-2xl md:rounded-3xl overflow-hidden shadow-xl border border-gray-300/50 dark:border-gray-700/50">
+                <iframe
+                  src={videoUrl}
+                  className="absolute inset-0 w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  title="Exercise Video"
+                />
+              </div>
+            </div>
+          )}
 
           <div className="bg-gray-900 dark:bg-black rounded-xl p-6 mb-6 border border-gray-700/50">
             <div className="flex items-center justify-between mb-4">
@@ -553,7 +617,8 @@ function QuizContent({ chapter, course }) {
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState(null);
   
-  const questions = [
+  const quizData = chapter?.quiz || {};
+  const questions = quizData.questions || [
     {
       id: 1,
       question: "What is the main purpose of this chapter?",
@@ -561,28 +626,6 @@ function QuizContent({ chapter, course }) {
         "To understand basic concepts",
         "To learn advanced techniques",
         "To master the fundamentals",
-        "All of the above"
-      ],
-      correct: 3
-    },
-    {
-      id: 2,
-      question: "Which of the following is a key concept covered?",
-      options: [
-        "Theory and practice",
-        "Practical applications",
-        "Real-world examples",
-        "All of the above"
-      ],
-      correct: 3
-    },
-    {
-      id: 3,
-      question: "What should you do after completing this quiz?",
-      options: [
-        "Move to the next chapter",
-        "Review the theory again",
-        "Practice more exercises",
         "All of the above"
       ],
       correct: 3

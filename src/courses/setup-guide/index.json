@@ -1,0 +1,45 @@
+{
+  "id": "setup-guide",
+  "title": "Setup Guide PL/I & CICS",
+  "description": "Learn how to set up your development environment for PL/I and CICS.",
+  "simple": false,
+  "chapters": [
+    {
+      "title": "Introduction",
+      "parts": ["Theory", "Exercise", "Final Quiz"],
+      "theory": {
+        "content": "Welcome to the Setup Guide for PL/I and CICS.\n\nThis guide will walk you through setting up your development environment, installing necessary tools, and configuring your system to work with PL/I and CICS.\n\nProper setup is essential for a smooth learning experience.",
+        "video": null,
+        "keyConcepts": [
+          "System requirements",
+          "Installation steps",
+          "Configuration settings"
+        ]
+      },
+      "exercise": {
+        "instructions": "Write a simple PL/I program to verify your setup is working correctly.",
+        "hint": "Create a basic 'Hello World' program using PROC OPTIONS(MAIN).",
+        "answer": "PROC OPTIONS(MAIN);\n  PUT SKIP LIST('Hello, PL/I!');\nENDPROC;"
+      },
+      "quiz": {
+        "questions": [
+          {
+            "id": 1,
+            "question": "What is the first step in setting up PL/I?",
+            "options": [
+              "Install the compiler",
+              "Configure the environment",
+              "Write a test program",
+              "Read the documentation"
+            ],
+            "correct": 0
+          }
+        ]
+      }
+    }
+  ],
+  "resources": [
+    { "label": "PL/I Documentation", "url": "#" },
+    { "label": "CICS Developer Guide", "url": "#" }
+  ]
+}
