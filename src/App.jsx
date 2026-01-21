@@ -303,6 +303,71 @@ function TheoryContent({ chapter, course }) {
 
 // Exercise Content Component
 function ExerciseContent({ chapter, course }) {
+  const [code, setCode] = useState(`PROC OPTIONS(MAIN);
+/* Your code goes here */
+/* Write your solution below */
+
+
+ENDPROC;`);
+  const [output, setOutput] = useState("");
+  const [isRunning, setIsRunning] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [testResult, setTestResult] = useState(null);
+
+  const handleRunCode = () => {
+    setIsRunning(true);
+    setOutput("");
+    
+    // Simulate code execution
+    setTimeout(() => {
+      if (code.trim().length < 20) {
+        setOutput("Error: Code is too short. Please write a complete solution.");
+      } else if (code.includes("PROC") && code.includes("ENDPROC")) {
+        setOutput("✓ Code compiled successfully!\n✓ Syntax check passed.\n✓ Ready for testing.");
+      } else {
+        setOutput("Warning: Make sure your code includes PROC and ENDPROC statements.");
+      }
+      setIsRunning(false);
+    }, 1000);
+  };
+
+  const handleSubmit = () => {
+    setIsSubmitted(true);
+    
+    // Simulate answer checking
+    setTimeout(() => {
+      const hasContent = code.trim().length > 50;
+      const hasProc = code.includes("PROC");
+      const hasEndProc = code.includes("ENDPROC");
+      
+      if (hasContent && hasProc && hasEndProc) {
+        setTestResult({
+          passed: true,
+          message: "Congratulations! Your solution looks good.",
+          score: 85
+        });
+      } else {
+        setTestResult({
+          passed: false,
+          message: "Your solution needs more work. Please review the requirements.",
+          score: 40
+        });
+      }
+    }, 800);
+  };
+
+  const handleReset = () => {
+    setCode(`PROC OPTIONS(MAIN);
+/* Your code goes here */
+/* Write your solution below */
+
+
+ENDPROC;`);
+    setOutput("");
+    setIsSubmitted(false);
+    setTestResult(null);
+  };
+
   return (
     <div className="space-y-6">
       <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl md:rounded-3xl p-6 md:p-8 shadow-lg border border-gray-200/60 dark:border-gray-800/60">
@@ -326,7 +391,7 @@ function ExerciseContent({ chapter, course }) {
             <ol className="space-y-3 text-gray-700 dark:text-gray-300 list-decimal list-inside">
               <li>Read the exercise requirements carefully</li>
               <li>Write your solution in the code editor below</li>
-              <li>Test your solution to ensure it works correctly</li>
+              <li>Test your solution using the "Run Code" button</li>
               <li>Submit your answer when you're ready</li>
             </ol>
           </div>
@@ -336,21 +401,70 @@ function ExerciseContent({ chapter, course }) {
               <h4 className="text-sm font-semibold text-gray-400">Code Editor</h4>
               <span className="text-xs text-gray-500">PL/I</span>
             </div>
-            <div className="bg-gray-950 rounded-lg p-4 font-mono text-sm text-gray-300">
-              <div className="text-gray-500 mb-2">// Your code goes here</div>
-              <div className="text-blue-400">PROC</div>
-              <div className="text-gray-400 ml-4">/* Write your solution */</div>
-              <div className="text-blue-400">ENDPROC</div>
-            </div>
+            <textarea
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              className="w-full bg-gray-950 rounded-lg p-4 font-mono text-sm text-gray-300 resize-none focus:outline-none focus:ring-2 focus:ring-green-500 min-h-[300px]"
+              placeholder="Write your PL/I code here..."
+              spellCheck={false}
+            />
           </div>
 
+          {output && (
+            <div className="bg-gray-900 dark:bg-black rounded-xl p-4 mb-6 border border-gray-700/50">
+              <h4 className="text-sm font-semibold text-gray-400 mb-2">Output</h4>
+              <pre className="text-sm text-gray-300 whitespace-pre-wrap font-mono">{output}</pre>
+            </div>
+          )}
+
+          {testResult && (
+            <div className={`rounded-xl p-6 mb-6 border ${
+              testResult.passed
+                ? "bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border-green-200/50 dark:border-green-800/50"
+                : "bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30 border-red-200/50 dark:border-red-800/50"
+            }`}>
+              <div className="flex items-center gap-3 mb-3">
+                {testResult.passed ? (
+                  <CheckCircle className="text-green-500" size={24} />
+                ) : (
+                  <span className="text-red-500 text-2xl">✗</span>
+                )}
+                <h3 className={`text-xl font-semibold ${
+                  testResult.passed ? "text-green-700 dark:text-green-300" : "text-red-700 dark:text-red-300"
+                }`}>
+                  {testResult.passed ? "Test Passed!" : "Test Failed"}
+                </h3>
+              </div>
+              <p className="text-gray-700 dark:text-gray-300 mb-2">{testResult.message}</p>
+              <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">
+                Score: {testResult.score}%
+              </p>
+            </div>
+          )}
+
           <div className="flex gap-4">
-            <button className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200">
-              Run Code
+            <button
+              onClick={handleRunCode}
+              disabled={isRunning}
+              className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            >
+              {isRunning ? "Running..." : "Run Code"}
             </button>
-            <button className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200">
-              Submit Answer
+            <button
+              onClick={handleSubmit}
+              disabled={isSubmitted}
+              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            >
+              {isSubmitted ? "Submitted" : "Submit Answer"}
             </button>
+            {isSubmitted && (
+              <button
+                onClick={handleReset}
+                className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200"
+              >
+                Reset
+          </button>
+        )}
           </div>
         </div>
       </div>
@@ -361,6 +475,9 @@ function ExerciseContent({ chapter, course }) {
 // Quiz Content Component
 function QuizContent({ chapter, course }) {
   const [selectedAnswers, setSelectedAnswers] = useState({});
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+  const [score, setScore] = useState(null);
   
   const questions = [
     {
@@ -399,10 +516,46 @@ function QuizContent({ chapter, course }) {
   ];
 
   const handleAnswerSelect = (questionId, answerIndex) => {
-    setSelectedAnswers(prev => ({
-      ...prev,
-      [questionId]: answerIndex
-    }));
+    if (!isSubmitted) {
+      setSelectedAnswers(prev => ({
+        ...prev,
+        [questionId]: answerIndex
+      }));
+    }
+  };
+
+  const handleSubmitQuiz = () => {
+    setIsSubmitted(true);
+    setShowResults(true);
+    
+    // Calculate score
+    let correct = 0;
+    questions.forEach(q => {
+      if (selectedAnswers[q.id] === q.correct) {
+        correct++;
+      }
+    });
+    
+    const percentage = Math.round((correct / questions.length) * 100);
+    setScore(percentage);
+  };
+
+  const handleResetQuiz = () => {
+    setSelectedAnswers({});
+    setIsSubmitted(false);
+    setShowResults(false);
+    setScore(null);
+  };
+
+  const getAnswerStatus = (questionId, optionIndex) => {
+    if (!showResults) return null;
+    const question = questions.find(q => q.id === questionId);
+    const isCorrect = optionIndex === question.correct;
+    const isSelected = selectedAnswers[questionId] === optionIndex;
+    
+    if (isCorrect) return "correct";
+    if (isSelected && !isCorrect) return "incorrect";
+    return null;
   };
 
   return (
@@ -422,6 +575,33 @@ function QuizContent({ chapter, course }) {
             Test your understanding of <strong>{chapter.title}</strong> by completing this quiz. 
             Select the best answer for each question.
           </p>
+
+          {showResults && score !== null && (
+            <div className={`rounded-xl p-6 mb-6 border ${
+              score >= 70
+                ? "bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border-green-200/50 dark:border-green-800/50"
+                : "bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950/30 dark:to-red-950/30 border-orange-200/50 dark:border-orange-800/50"
+            }`}>
+              <div className="flex items-center gap-3 mb-3">
+                <CheckCircle className={score >= 70 ? "text-green-500" : "text-orange-500"} size={32} />
+                <div>
+                  <h3 className={`text-2xl font-bold ${
+                    score >= 70 ? "text-green-700 dark:text-green-300" : "text-orange-700 dark:text-orange-300"
+                  }`}>
+                    Quiz Results
+                  </h3>
+                  <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+                    Score: {score}% ({questions.filter(q => selectedAnswers[q.id] === q.correct).length} out of {questions.length} correct)
+                  </p>
+                </div>
+              </div>
+              <p className="text-gray-700 dark:text-gray-300">
+                {score >= 70 
+                  ? "Great job! You have a good understanding of this chapter."
+                  : "Keep studying! Review the material and try again."}
+              </p>
+            </div>
+          )}
           
           <div className="space-y-6">
             {questions.map((q, index) => (
@@ -432,17 +612,31 @@ function QuizContent({ chapter, course }) {
                 <div className="space-y-2">
                   {q.options.map((option, optIndex) => {
                     const isSelected = selectedAnswers[q.id] === optIndex;
+                    const status = getAnswerStatus(q.id, optIndex);
+                    
+                    let buttonClass = "w-full text-left p-3 rounded-lg transition-all duration-200 ";
+                    if (status === "correct") {
+                      buttonClass += "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-md border-2 border-green-600";
+                    } else if (status === "incorrect") {
+                      buttonClass += "bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-md border-2 border-red-600";
+                    } else if (isSelected) {
+                      buttonClass += "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md";
+                    } else {
+                      buttonClass += "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-purple-900/30";
+                    }
+                    
                     return (
-      <button
+                      <button
                         key={optIndex}
                         onClick={() => handleAnswerSelect(q.id, optIndex)}
-                        className={`w-full text-left p-3 rounded-lg transition-all duration-200 ${
-                          isSelected
-                            ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md"
-                            : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-purple-900/30"
-                        }`}
+                        disabled={isSubmitted}
+                        className={buttonClass}
                       >
-                        {String.fromCharCode(65 + optIndex)}. {option}
+                        <span className="flex items-center gap-2">
+                          {String.fromCharCode(65 + optIndex)}. {option}
+                          {status === "correct" && <CheckCircle size={18} />}
+                          {status === "incorrect" && <span className="text-lg">✗</span>}
+                        </span>
                       </button>
                     );
                   })}
@@ -452,12 +646,30 @@ function QuizContent({ chapter, course }) {
           </div>
 
           <div className="mt-6 flex gap-4">
-            <button className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200">
-              Submit Quiz
-            </button>
-            <button className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200">
-              Review Answers
-      </button>
+            {!isSubmitted ? (
+              <button
+                onClick={handleSubmitQuiz}
+                disabled={Object.keys(selectedAnswers).length < questions.length}
+                className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              >
+                Submit Quiz
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={handleResetQuiz}
+                  className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200"
+                >
+                  Retake Quiz
+                </button>
+                <button
+                  onClick={() => setShowResults(!showResults)}
+                  className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200"
+                >
+                  {showResults ? "Hide Results" : "Show Results"}
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
