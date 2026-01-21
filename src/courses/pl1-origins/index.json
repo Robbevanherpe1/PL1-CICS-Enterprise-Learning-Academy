@@ -1,0 +1,11 @@
+{
+  "title": "Discover the Origins and Evolution of PL/I",
+  "description": "Learn how PL/I shaped modern mainframe programming.",
+  "chapters": [
+    { "title": "Introduction", "parts": ["Theory", "Exercise", "Quiz"] },
+    { "title": "Evolution", "parts": ["Theory", "Exercise", "Final Review"] }
+  ],
+  "resources": [
+    { "label": "IBM PL/I Docs", "url": "https://www.ibm.com/docs/en/pli" }
+  ]
+}
