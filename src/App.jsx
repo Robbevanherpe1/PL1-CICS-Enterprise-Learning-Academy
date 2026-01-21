@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ChevronDown, ChevronUp, PlayCircle, Link as LinkIcon, Sun, Moon, Code2 } from "lucide-react";
+import { ChevronDown, ChevronUp, PlayCircle, Link as LinkIcon, Sun, Moon, Code2, BookOpen, PenTool, CheckCircle } from "lucide-react";
 
 const courses = [
   { title: "Discover the origins and evolution of PL/I.", id: "pl1-origins", simple: true },
@@ -119,8 +119,25 @@ export default function App() {
 }
 
 function CoursePage({ course, goBack }) {
-  const [openChapter, setOpenChapter] = useState(null);
+  const [openChapter, setOpenChapter] = useState(0);
+  const [selectedChapter, setSelectedChapter] = useState(0);
+  const [selectedPart, setSelectedPart] = useState("Theory");
   const chapters = course.simple ? simpleChapters : defaultChapters;
+
+  // Auto-open first chapter and select first part on mount
+  useEffect(() => {
+    if (chapters.length > 0) {
+      setOpenChapter(0);
+      setSelectedChapter(0);
+      setSelectedPart(chapters[0].parts[0]);
+    }
+  }, [course.id]);
+
+  const handlePartClick = (chapterIndex, part) => {
+    setSelectedChapter(chapterIndex);
+    setSelectedPart(part);
+    setOpenChapter(chapterIndex);
+  };
 
   return (
     <div className="flex h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 dark:from-slate-950 dark:via-blue-950/20 dark:to-indigo-950/30">
@@ -154,22 +171,31 @@ function CoursePage({ course, goBack }) {
               </button>
               {openChapter === i && (
                 <ul id={`chapter-${i}`} className="mt-2 md:mt-3 ml-2 md:ml-4 space-y-1.5 md:space-y-2">
-                  {chapter.parts.map((part, j) => (
-                    <li
-                      key={j}
-                      className="text-xs md:text-sm px-3 md:px-4 py-1.5 md:py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          // Handle part click here if needed
-                        }
-                      }}
-                    >
-                      {part}
-                    </li>
-                  ))}
+                  {chapter.parts.map((part, j) => {
+                    const isActive = selectedChapter === i && selectedPart === part;
+                    return (
+                      <li
+                        key={j}
+                        onClick={() => handlePartClick(i, part)}
+                        className={`text-xs md:text-sm px-3 md:px-4 py-1.5 md:py-2 rounded-lg cursor-pointer transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 ${
+                          isActive
+                            ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-md"
+                            : "text-gray-600 dark:text-gray-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 hover:text-blue-600 dark:hover:text-blue-400"
+                        }`}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            handlePartClick(i, part);
+                          }
+                        }}
+                        aria-label={`${chapter.title} - ${part}`}
+                      >
+                        {part}
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </div>
@@ -179,80 +205,262 @@ function CoursePage({ course, goBack }) {
 
       <main className="flex-1 p-6 md:p-10 lg:p-12 overflow-y-auto">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 md:mb-6 text-gray-900 dark:text-gray-100">
-            {course.title}
-          </h1>
-          <p className="mb-8 md:mb-12 text-gray-600 dark:text-gray-400 leading-relaxed text-base md:text-lg font-medium max-w-3xl">
-            Welcome to this module. Dive into practical exercises, detailed theory, and examples drawn from real-world mainframe environments.
-          </p>
-
-          <div 
-            className="relative aspect-video bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 dark:from-gray-800 dark:via-gray-800 dark:to-gray-900 rounded-2xl md:rounded-3xl flex items-center justify-center mb-8 md:mb-12 shadow-xl border border-gray-300/50 dark:border-gray-700/50 overflow-hidden group cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
-            role="button"
-            tabIndex={0}
-            aria-label="Video player placeholder"
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                // Handle video play here if needed
-              }
-            }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 via-cyan-500/0 to-indigo-500/0 group-hover:from-blue-500/10 group-hover:via-cyan-500/10 group-hover:to-indigo-500/10 transition-all duration-300"></div>
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_rgba(0,0,0,0.05)_100%)] dark:bg-[radial-gradient(circle_at_center,_transparent_0%,_rgba(0,0,0,0.3)_100%)]"></div>
-            <PlayCircle size={64} className="md:hidden text-gray-500 dark:text-gray-400 relative z-10 group-hover:scale-110 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-all duration-300 drop-shadow-lg" />
-            <PlayCircle size={88} className="hidden md:block text-gray-500 dark:text-gray-400 relative z-10 group-hover:scale-110 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-all duration-300 drop-shadow-lg" />
+          <div className="mb-6">
+            <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+              {chapters[selectedChapter]?.title} / {selectedPart}
+            </span>
           </div>
+          
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 md:mb-6 text-gray-900 dark:text-gray-100">
+            {chapters[selectedChapter]?.title}: {selectedPart}
+          </h1>
 
-          <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl md:rounded-3xl p-6 md:p-8 shadow-lg border border-gray-200/60 dark:border-gray-800/60">
-            <h2 className="text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-gray-800 dark:text-gray-100">
-              Resources
-            </h2>
-            <ul className="space-y-3 md:space-y-4">
-              <li 
-                className="group flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 hover:from-blue-100 hover:to-cyan-100 dark:hover:from-blue-950/50 dark:hover:to-cyan-950/50 cursor-pointer transition-all duration-200 border border-blue-200/50 dark:border-blue-800/50 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
-                role="link"
-                tabIndex={0}
-                aria-label="PL/I Documentation link"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    // Handle link click here
-                  }
-                }}
-              >
-                <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 shadow-md shadow-blue-500/20 group-hover:scale-110 transition-transform duration-200">
-                  <LinkIcon size={18} className="md:hidden text-white" />
-                  <LinkIcon size={20} className="hidden md:block text-white" />
-                </div>
-                <span className="text-base md:text-lg font-semibold text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">
-                  PL/I Documentation
-                </span>
+          {/* Content based on selected part */}
+          {selectedPart === "Theory" && (
+            <TheoryContent chapter={chapters[selectedChapter]} course={course} />
+          )}
+          
+          {selectedPart === "Exercise" && (
+            <ExerciseContent chapter={chapters[selectedChapter]} course={course} />
+          )}
+          
+          {selectedPart === "Final Quiz" && (
+            <QuizContent chapter={chapters[selectedChapter]} course={course} />
+          )}
+        </div>
+      </main>
+    </div>
+  );
+}
+
+// Theory Content Component
+function TheoryContent({ chapter, course }) {
+  return (
+    <div className="space-y-6">
+      <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl md:rounded-3xl p-6 md:p-8 shadow-lg border border-gray-200/60 dark:border-gray-800/60">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-md">
+            <BookOpen className="text-white" size={24} />
+          </div>
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100">
+            Theory Content
+          </h2>
+        </div>
+        
+        <div className="prose prose-lg dark:prose-invert max-w-none">
+          <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+            Welcome to the theory section for <strong>{chapter.title}</strong> in <strong>{course.title}</strong>.
+          </p>
+          
+          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 rounded-xl p-6 mb-6 border border-blue-200/50 dark:border-blue-800/50">
+            <h3 className="text-xl font-semibold mb-3 text-gray-800 dark:text-gray-100">Key Concepts</h3>
+            <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+              <li className="flex items-start gap-2">
+                <span className="text-blue-500 mt-1">•</span>
+                <span>Understanding the fundamental principles and concepts</span>
               </li>
-              <li 
-                className="group flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 hover:from-blue-100 hover:to-cyan-100 dark:hover:from-blue-950/50 dark:hover:to-cyan-950/50 cursor-pointer transition-all duration-200 border border-blue-200/50 dark:border-blue-800/50 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
-                role="link"
-                tabIndex={0}
-                aria-label="CICS Developer Guide link"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    // Handle link click here
-                  }
-                }}
-              >
-                <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 shadow-md shadow-blue-500/20 group-hover:scale-110 transition-transform duration-200">
-                  <LinkIcon size={18} className="md:hidden text-white" />
-                  <LinkIcon size={20} className="hidden md:block text-white" />
-                </div>
-                <span className="text-base md:text-lg font-semibold text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">
-                  CICS Developer Guide
-                </span>
+              <li className="flex items-start gap-2">
+                <span className="text-blue-500 mt-1">•</span>
+                <span>Learning the theoretical foundations</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-blue-500 mt-1">•</span>
+                <span>Exploring real-world applications and examples</span>
               </li>
             </ul>
           </div>
+
+          <div className="space-y-4 text-gray-700 dark:text-gray-300">
+            <p>
+              This section covers the essential theoretical knowledge you need to master <strong>{chapter.title}</strong>. 
+              You'll learn about the core concepts, best practices, and important principles that form the foundation 
+              of this topic.
+            </p>
+            <p>
+              Take your time to read through the material carefully. Understanding the theory is crucial before 
+              moving on to practical exercises.
+            </p>
+          </div>
         </div>
-      </main>
+      </div>
+
+      <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl md:rounded-3xl p-6 md:p-8 shadow-lg border border-gray-200/60 dark:border-gray-800/60">
+        <h3 className="text-xl font-bold mb-4 text-gray-800 dark:text-gray-100">Resources</h3>
+        <ul className="space-y-3">
+          <li className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 hover:from-blue-100 hover:to-cyan-100 dark:hover:from-blue-950/50 dark:hover:to-cyan-950/50 cursor-pointer transition-all duration-200 border border-blue-200/50 dark:border-blue-800/50">
+            <LinkIcon size={18} className="text-blue-600 dark:text-blue-400" />
+            <span className="text-base font-semibold text-blue-600 dark:text-blue-400">PL/I Documentation</span>
+          </li>
+          <li className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 hover:from-blue-100 hover:to-cyan-100 dark:hover:from-blue-950/50 dark:hover:to-cyan-950/50 cursor-pointer transition-all duration-200 border border-blue-200/50 dark:border-blue-800/50">
+            <LinkIcon size={18} className="text-blue-600 dark:text-blue-400" />
+            <span className="text-base font-semibold text-blue-600 dark:text-blue-400">CICS Developer Guide</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+// Exercise Content Component
+function ExerciseContent({ chapter, course }) {
+  return (
+    <div className="space-y-6">
+      <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl md:rounded-3xl p-6 md:p-8 shadow-lg border border-gray-200/60 dark:border-gray-800/60">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-3 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 shadow-md">
+            <PenTool className="text-white" size={24} />
+          </div>
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100">
+            Exercise: {chapter.title}
+          </h2>
+        </div>
+        
+        <div className="prose prose-lg dark:prose-invert max-w-none">
+          <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+            Now it's time to put your knowledge into practice! Complete the exercises below to reinforce what 
+            you've learned in the theory section.
+          </p>
+          
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-xl p-6 mb-6 border border-green-200/50 dark:border-green-800/50">
+            <h3 className="text-xl font-semibold mb-3 text-gray-800 dark:text-gray-100">Exercise Instructions</h3>
+            <ol className="space-y-3 text-gray-700 dark:text-gray-300 list-decimal list-inside">
+              <li>Read the exercise requirements carefully</li>
+              <li>Write your solution in the code editor below</li>
+              <li>Test your solution to ensure it works correctly</li>
+              <li>Submit your answer when you're ready</li>
+            </ol>
+          </div>
+
+          <div className="bg-gray-900 dark:bg-black rounded-xl p-6 mb-6 border border-gray-700/50">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-sm font-semibold text-gray-400">Code Editor</h4>
+              <span className="text-xs text-gray-500">PL/I</span>
+            </div>
+            <div className="bg-gray-950 rounded-lg p-4 font-mono text-sm text-gray-300">
+              <div className="text-gray-500 mb-2">// Your code goes here</div>
+              <div className="text-blue-400">PROC</div>
+              <div className="text-gray-400 ml-4">/* Write your solution */</div>
+              <div className="text-blue-400">ENDPROC</div>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <button className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200">
+              Run Code
+            </button>
+            <button className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200">
+              Submit Answer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Quiz Content Component
+function QuizContent({ chapter, course }) {
+  const [selectedAnswers, setSelectedAnswers] = useState({});
+  
+  const questions = [
+    {
+      id: 1,
+      question: "What is the main purpose of this chapter?",
+      options: [
+        "To understand basic concepts",
+        "To learn advanced techniques",
+        "To master the fundamentals",
+        "All of the above"
+      ],
+      correct: 3
+    },
+    {
+      id: 2,
+      question: "Which of the following is a key concept covered?",
+      options: [
+        "Theory and practice",
+        "Practical applications",
+        "Real-world examples",
+        "All of the above"
+      ],
+      correct: 3
+    },
+    {
+      id: 3,
+      question: "What should you do after completing this quiz?",
+      options: [
+        "Move to the next chapter",
+        "Review the theory again",
+        "Practice more exercises",
+        "All of the above"
+      ],
+      correct: 3
+    }
+  ];
+
+  const handleAnswerSelect = (questionId, answerIndex) => {
+    setSelectedAnswers(prev => ({
+      ...prev,
+      [questionId]: answerIndex
+    }));
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl md:rounded-3xl p-6 md:p-8 shadow-lg border border-gray-200/60 dark:border-gray-800/60">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 shadow-md">
+            <CheckCircle className="text-white" size={24} />
+          </div>
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100">
+            Final Quiz: {chapter.title}
+          </h2>
+        </div>
+        
+        <div className="prose prose-lg dark:prose-invert max-w-none">
+          <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
+            Test your understanding of <strong>{chapter.title}</strong> by completing this quiz. 
+            Select the best answer for each question.
+          </p>
+          
+          <div className="space-y-6">
+            {questions.map((q, index) => (
+              <div key={q.id} className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 rounded-xl p-6 border border-purple-200/50 dark:border-purple-800/50">
+                <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">
+                  Question {index + 1}: {q.question}
+                </h3>
+                <div className="space-y-2">
+                  {q.options.map((option, optIndex) => {
+                    const isSelected = selectedAnswers[q.id] === optIndex;
+                    return (
+                      <button
+                        key={optIndex}
+                        onClick={() => handleAnswerSelect(q.id, optIndex)}
+                        className={`w-full text-left p-3 rounded-lg transition-all duration-200 ${
+                          isSelected
+                            ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md"
+                            : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-purple-900/30"
+                        }`}
+                      >
+                        {String.fromCharCode(65 + optIndex)}. {option}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 flex gap-4">
+            <button className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200">
+              Submit Quiz
+            </button>
+            <button className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200">
+              Review Answers
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
