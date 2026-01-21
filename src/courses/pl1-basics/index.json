@@ -8,8 +8,8 @@
       "title": "Introduction",
       "parts": ["Theory", "Exercise", "Final Quiz"],
       "theory": {
-        "content": "Welcome to the Introduction chapter of PL/I Basics.\n\nPL/I (Programming Language One) is a procedural, imperative computer programming language designed for scientific, engineering, business and system programming uses. It has been used by various academic, commercial and industrial organizations since it was introduced in the 1960s.\n\nIn this chapter, you'll learn the basic syntax, data types, and fundamental concepts of PL/I programming.",
-        "video": null,
+        "content": "Welcome to the Introduction chapter of PL/I Basics.\n\nPL/I (Programming Language One) is a procedural, imperative computer programming language designed for scientific, engineering, business and system programming uses. It has been used by various academic, commercial and industrial organizations since it was introduced in the 1960s.\n\nIn this chapter, you'll learn the basic syntax, data types, and fundamental concepts of PL/I programming.\n\nWatch the video below to get started with PL/I programming fundamentals.",
+        "video": "pli.mp4",
         "keyConcepts": [
           "PL/I syntax and structure",
           "Basic data types",

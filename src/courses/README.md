@@ -55,6 +55,23 @@ All course content is stored in JSON files in each course folder. Each course ha
 
 To add a video to theory or exercise sections, use the `video` field:
 
+### Local Video Files (MP4, MOV, etc.)
+
+1. Place your video file (`.mp4`, `.mov`, `.webm`, `.avi`, `.mkv`) in the `public/videos/` folder
+2. Reference it by filename in the JSON:
+
+```json
+"theory": {
+  "content": "...",
+  "video": "my-video.mp4",
+  "keyConcepts": [...]
+}
+```
+
+The video will be automatically loaded from `/videos/my-video.mp4`
+
+### Embed URLs (YouTube, Vimeo, etc.)
+
 - **YouTube**: Use embed URL format: `https://www.youtube.com/embed/VIDEO_ID`
 - **Other platforms**: Use the embed URL provided by the platform
 - **No video**: Set to `null`
@@ -67,6 +84,18 @@ Example:
   "keyConcepts": [...]
 }
 ```
+
+### Video Folder Structure
+
+```
+public/
+  videos/
+    theory-intro.mp4
+    exercise-demo.mov
+    ...
+```
+
+Videos in the `public/videos/` folder are served directly and can be referenced by filename.
 
 ## Course Types
 

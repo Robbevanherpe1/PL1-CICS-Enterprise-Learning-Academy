@@ -294,6 +294,60 @@ function CoursePage({ course, courseData, loading, goBack }) {
   );
 }
 
+// Helper function to check if video is a local file
+const isLocalVideo = (videoUrl) => {
+  if (!videoUrl) return false;
+  const lowerUrl = videoUrl.toLowerCase();
+  return lowerUrl.endsWith('.mp4') || lowerUrl.endsWith('.mov') || lowerUrl.endsWith('.webm') || lowerUrl.endsWith('.avi') || lowerUrl.endsWith('.mkv');
+};
+
+// Video Player Component
+function VideoPlayer({ videoUrl, title }) {
+  if (!videoUrl) return null;
+
+  const isLocal = isLocalVideo(videoUrl);
+  
+  // For local videos, reference them from the public/videos folder
+  // Videos in public folder are served from root, so use /videos/filename
+  const getVideoSrc = () => {
+    if (isLocal) {
+      // If it starts with /, use as is (absolute path)
+      if (videoUrl.startsWith('/')) {
+        return videoUrl;
+      }
+      // Otherwise, assume it's in public/videos folder
+      return `/videos/${videoUrl}`;
+    }
+    return videoUrl;
+  };
+
+  return (
+    <div className="mb-6">
+      <div className="relative aspect-video bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 dark:from-gray-800 dark:via-gray-800 dark:to-gray-900 rounded-2xl md:rounded-3xl overflow-hidden shadow-xl border border-gray-300/50 dark:border-gray-700/50">
+        {isLocal ? (
+          <video
+            src={getVideoSrc()}
+            controls
+            className="absolute inset-0 w-full h-full"
+            title={title || "Video"}
+            preload="metadata"
+          >
+            Your browser does not support the video tag.
+          </video>
+        ) : (
+          <iframe
+            src={getVideoSrc()}
+            className="absolute inset-0 w-full h-full"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            title={title || "Video"}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
 // Theory Content Component
 function TheoryContent({ chapter, course }) {
   const theoryData = chapter?.theory || {};
@@ -317,19 +371,7 @@ function TheoryContent({ chapter, course }) {
           </h2>
         </div>
         
-        {videoUrl && (
-          <div className="mb-6">
-            <div className="relative aspect-video bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 dark:from-gray-800 dark:via-gray-800 dark:to-gray-900 rounded-2xl md:rounded-3xl overflow-hidden shadow-xl border border-gray-300/50 dark:border-gray-700/50">
-              <iframe
-                src={videoUrl}
-                className="absolute inset-0 w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                title="Theory Video"
-              />
-            </div>
-          </div>
-        )}
+        <VideoPlayer videoUrl={videoUrl} title="Theory Video" />
         
         <div className="prose prose-lg dark:prose-invert max-w-none">
           <div className="space-y-4 text-gray-700 dark:text-gray-300 whitespace-pre-line">
@@ -495,19 +537,7 @@ ENDPROC;`);
             )}
           </div>
 
-          {videoUrl && (
-            <div className="mb-6">
-              <div className="relative aspect-video bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 dark:from-gray-800 dark:via-gray-800 dark:to-gray-900 rounded-2xl md:rounded-3xl overflow-hidden shadow-xl border border-gray-300/50 dark:border-gray-700/50">
-                <iframe
-                  src={videoUrl}
-                  className="absolute inset-0 w-full h-full"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  title="Exercise Video"
-                />
-              </div>
-            </div>
-          )}
+          <VideoPlayer videoUrl={videoUrl} title="Exercise Video" />
 
           <div className="bg-gray-900 dark:bg-black rounded-xl p-6 mb-6 border border-gray-700/50">
             <div className="flex items-center justify-between mb-4">
