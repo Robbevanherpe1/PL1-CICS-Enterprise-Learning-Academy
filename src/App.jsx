@@ -303,56 +303,105 @@ function TheoryContent({ chapter, course }) {
 
 // Exercise Content Component
 function ExerciseContent({ chapter, course }) {
+  // Example answers for different exercises
+  const exampleAnswers = {
+    "Introduction": `PROC OPTIONS(MAIN);
+  DCL X FIXED BIN(31);
+  DCL Y FIXED BIN(31);
+  
+  X = 10;
+  Y = 20;
+  PUT SKIP LIST('Sum:', X + Y);
+ENDPROC;`,
+    "Core Concepts": `PROC OPTIONS(MAIN);
+  DCL ARR(10) FIXED BIN(31);
+  DCL I FIXED BIN(31);
+  
+  DO I = 1 TO 10;
+    ARR(I) = I * 2;
+  END;
+ENDPROC;`,
+    "Advanced Topics": `PROC OPTIONS(MAIN);
+  DCL STR CHAR(50) VAR;
+  DCL LEN FIXED BIN(31);
+  
+  STR = 'Hello, PL/I!';
+  LEN = LENGTH(STR);
+  PUT SKIP LIST('Length:', LEN);
+ENDPROC;`,
+    "Overview": `PROC OPTIONS(MAIN);
+  DCL NUM FIXED BIN(31);
+  
+  NUM = 42;
+  PUT SKIP LIST('Number:', NUM);
+ENDPROC;`
+  };
+
+  const correctAnswer = exampleAnswers[chapter.title] || exampleAnswers["Overview"];
+  
   const [code, setCode] = useState(`PROC OPTIONS(MAIN);
 /* Your code goes here */
 /* Write your solution below */
 
 
 ENDPROC;`);
-  const [output, setOutput] = useState("");
-  const [isRunning, setIsRunning] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [testResult, setTestResult] = useState(null);
+  const [checkResult, setCheckResult] = useState(null);
+  const [showAnswer, setShowAnswer] = useState(false);
 
-  const handleRunCode = () => {
-    setIsRunning(true);
-    setOutput("");
-    
-    // Simulate code execution
-    setTimeout(() => {
-      if (code.trim().length < 20) {
-        setOutput("Error: Code is too short. Please write a complete solution.");
-      } else if (code.includes("PROC") && code.includes("ENDPROC")) {
-        setOutput("✓ Code compiled successfully!\n✓ Syntax check passed.\n✓ Ready for testing.");
-      } else {
-        setOutput("Warning: Make sure your code includes PROC and ENDPROC statements.");
-      }
-      setIsRunning(false);
-    }, 1000);
+  // Normalize code for comparison (remove whitespace, comments, case-insensitive)
+  const normalizeCode = (codeStr) => {
+    return codeStr
+      .toUpperCase()
+      .replace(/\/\*[\s\S]*?\*\//g, '') // Remove comments
+      .replace(/\/\/.*/g, '') // Remove single-line comments
+      .replace(/\s+/g, ' ') // Normalize whitespace
+      .trim();
   };
 
-  const handleSubmit = () => {
+  const handleCheckAnswer = () => {
+    setIsChecking(true);
     setIsSubmitted(true);
     
-    // Simulate answer checking
     setTimeout(() => {
-      const hasContent = code.trim().length > 50;
-      const hasProc = code.includes("PROC");
-      const hasEndProc = code.includes("ENDPROC");
+      const userCodeNormalized = normalizeCode(code);
+      const correctCodeNormalized = normalizeCode(correctAnswer);
       
-      if (hasContent && hasProc && hasEndProc) {
-        setTestResult({
-          passed: true,
-          message: "Congratulations! Your solution looks good.",
-          score: 85
-        });
-      } else {
-        setTestResult({
-          passed: false,
-          message: "Your solution needs more work. Please review the requirements.",
-          score: 40
-        });
-      }
+      // Calculate similarity
+      const userKeywords = userCodeNormalized.split(/\s+/).filter(w => w.length > 2);
+      const correctKeywords = correctCodeNormalized.split(/\s+/).filter(w => w.length > 2);
+      const matchingKeywords = userKeywords.filter(kw => correctKeywords.includes(kw));
+      const similarity = correctKeywords.length > 0 
+        ? (matchingKeywords.length / correctKeywords.length) * 100 
+        : 0;
+      
+      // Check for key elements
+      const hasProc = userCodeNormalized.includes("PROC");
+      const hasEndProc = userCodeNormalized.includes("ENDPROC");
+      const hasMain = userCodeNormalized.includes("MAIN");
+      
+      // Detailed feedback
+      const feedback = [];
+      if (hasProc) feedback.push({ type: "correct", text: "✓ PROC statement found" });
+      else feedback.push({ type: "incorrect", text: "✗ Missing PROC statement" });
+      
+      if (hasEndProc) feedback.push({ type: "correct", text: "✓ ENDPROC statement found" });
+      else feedback.push({ type: "incorrect", text: "✗ Missing ENDPROC statement" });
+      
+      if (hasMain) feedback.push({ type: "correct", text: "✓ MAIN option found" });
+      else feedback.push({ type: "warning", text: "⚠ Consider using OPTIONS(MAIN)" });
+      
+      const score = Math.round(similarity);
+      const passed = score >= 70 && hasProc && hasEndProc;
+      
+      setCheckResult({
+        passed,
+        score,
+        feedback,
+        similarity: Math.round(similarity)
+      });
+      setIsChecking(false);
     }, 800);
   };
 
@@ -363,9 +412,9 @@ ENDPROC;`);
 
 
 ENDPROC;`);
-    setOutput("");
     setIsSubmitted(false);
-    setTestResult(null);
+    setCheckResult(null);
+    setShowAnswer(false);
   };
 
   return (
@@ -391,8 +440,8 @@ ENDPROC;`);
             <ol className="space-y-3 text-gray-700 dark:text-gray-300 list-decimal list-inside">
               <li>Read the exercise requirements carefully</li>
               <li>Write your solution in the code editor below</li>
-              <li>Test your solution using the "Run Code" button</li>
-              <li>Submit your answer when you're ready</li>
+              <li>Click "Check Answer" to compare your code with the solution</li>
+              <li>Review the feedback and see the correct answer if needed</li>
             </ol>
           </div>
 
@@ -410,61 +459,86 @@ ENDPROC;`);
             />
           </div>
 
-          {output && (
-            <div className="bg-gray-900 dark:bg-black rounded-xl p-4 mb-6 border border-gray-700/50">
-              <h4 className="text-sm font-semibold text-gray-400 mb-2">Output</h4>
-              <pre className="text-sm text-gray-300 whitespace-pre-wrap font-mono">{output}</pre>
+          {checkResult && (
+            <div className={`rounded-xl p-6 mb-6 border ${
+              checkResult.passed
+                ? "bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border-green-200/50 dark:border-green-800/50"
+                : "bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-950/30 dark:to-yellow-950/30 border-orange-200/50 dark:border-orange-800/50"
+            }`}>
+              <div className="flex items-center gap-3 mb-4">
+                {checkResult.passed ? (
+                  <CheckCircle className="text-green-500" size={24} />
+                ) : (
+                  <span className="text-orange-500 text-2xl">⚠</span>
+                )}
+                <div>
+                  <h3 className={`text-xl font-semibold ${
+                    checkResult.passed ? "text-green-700 dark:text-green-300" : "text-orange-700 dark:text-orange-300"
+                  }`}>
+                    {checkResult.passed ? "Great Job!" : "Review Needed"}
+                  </h3>
+                  <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">
+                    Similarity: {checkResult.similarity}% | Score: {checkResult.score}%
+                  </p>
+                </div>
+              </div>
+              
+              <div className="space-y-2 mb-4">
+                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Feedback:</h4>
+                {checkResult.feedback.map((item, idx) => (
+                  <div key={idx} className={`text-sm ${
+                    item.type === "correct" 
+                      ? "text-green-700 dark:text-green-300" 
+                      : item.type === "incorrect"
+                      ? "text-red-700 dark:text-red-300"
+                      : "text-yellow-700 dark:text-yellow-300"
+                  }`}>
+                    {item.text}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
-          {testResult && (
-            <div className={`rounded-xl p-6 mb-6 border ${
-              testResult.passed
-                ? "bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border-green-200/50 dark:border-green-800/50"
-                : "bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30 border-red-200/50 dark:border-red-800/50"
-            }`}>
-              <div className="flex items-center gap-3 mb-3">
-                {testResult.passed ? (
-                  <CheckCircle className="text-green-500" size={24} />
-                ) : (
-                  <span className="text-red-500 text-2xl">✗</span>
-                )}
-                <h3 className={`text-xl font-semibold ${
-                  testResult.passed ? "text-green-700 dark:text-green-300" : "text-red-700 dark:text-red-300"
-                }`}>
-                  {testResult.passed ? "Test Passed!" : "Test Failed"}
-                </h3>
-              </div>
-              <p className="text-gray-700 dark:text-gray-300 mb-2">{testResult.message}</p>
-              <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">
-                Score: {testResult.score}%
-              </p>
+          {isSubmitted && (
+            <div className="mb-6">
+              <button
+                onClick={() => setShowAnswer(!showAnswer)}
+                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 text-sm"
+              >
+                {showAnswer ? "Hide" : "Show"} Correct Answer
+              </button>
+              
+              {showAnswer && (
+                <div className="mt-4 bg-gray-900 dark:bg-black rounded-xl p-6 border border-gray-700/50">
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-sm font-semibold text-gray-400">Correct Answer</h4>
+                    <span className="text-xs text-gray-500">PL/I</span>
+                  </div>
+                  <pre className="text-sm text-gray-300 whitespace-pre-wrap font-mono overflow-x-auto">
+                    {correctAnswer}
+                  </pre>
+                </div>
+              )}
             </div>
           )}
 
           <div className="flex gap-4">
             <button
-              onClick={handleRunCode}
-              disabled={isRunning}
+              onClick={handleCheckAnswer}
+              disabled={isChecking || code.trim().length < 10}
               className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
-              {isRunning ? "Running..." : "Run Code"}
-            </button>
-            <button
-              onClick={handleSubmit}
-              disabled={isSubmitted}
-              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-            >
-              {isSubmitted ? "Submitted" : "Submit Answer"}
+              {isChecking ? "Checking..." : "Check Answer"}
             </button>
             {isSubmitted && (
               <button
                 onClick={handleReset}
                 className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200"
               >
-                Reset
-          </button>
-        )}
+                Try Again
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -662,12 +736,12 @@ function QuizContent({ chapter, course }) {
                 >
                   Retake Quiz
                 </button>
-                <button
+      <button
                   onClick={() => setShowResults(!showResults)}
                   className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200"
-                >
+      >
                   {showResults ? "Hide Results" : "Show Results"}
-                </button>
+      </button>
               </>
             )}
           </div>
