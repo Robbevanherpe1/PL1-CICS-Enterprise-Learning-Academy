@@ -51,7 +51,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 dark:from-slate-950 dark:via-blue-950/20 dark:to-indigo-950/30 text-gray-900 dark:text-gray-100 transition-colors duration-500">
       <header className="flex justify-between items-center px-6 md:px-8 py-4 md:py-5 border-b border-gray-200/60 dark:border-gray-800/60 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl shadow-sm sticky top-0 z-50">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3">
           <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30 transition-shadow duration-200">
             <Code2 className="text-white" size={22} />
           </div>
@@ -141,7 +141,7 @@ function CoursePage({ course, goBack }) {
 
   return (
     <div className="flex h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 dark:from-slate-950 dark:via-blue-950/20 dark:to-indigo-950/30">
-      <aside className="w-64 md:w-72 lg:w-80 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl shadow-xl p-6 md:p-8 flex-shrink-0 overflow-y-auto border-r border-gray-200/60 dark:border-gray-800/60">
+      <aside className="w-64 md:w-72 lg:w-80 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl shadow-xl p-6 md:p-8 flex-shrink-0 h-screen sticky top-0 overflow-y-auto border-r border-gray-200/60 dark:border-gray-800/60">
         <button
           onClick={goBack}
           className="group flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 mb-6 md:mb-8 font-semibold hover:text-blue-700 dark:hover:text-blue-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded-lg px-2 py-1"
@@ -156,7 +156,7 @@ function CoursePage({ course, goBack }) {
         <div className="space-y-2">
           {chapters.map((chapter, i) => (
             <div key={i} className="mb-2">
-              <button
+          <button
                 onClick={() => setOpenChapter(openChapter === i ? null : i)}
                 aria-expanded={openChapter === i}
                 aria-controls={`chapter-${i}`}
@@ -168,7 +168,7 @@ function CoursePage({ course, goBack }) {
               >
                 <span className="text-sm md:text-base">{chapter.title}</span>
                 {openChapter === i ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-              </button>
+          </button>
               {openChapter === i && (
                 <ul id={`chapter-${i}`} className="mt-2 md:mt-3 ml-2 md:ml-4 space-y-1.5 md:space-y-2">
                   {chapter.parts.map((part, j) => {
@@ -433,7 +433,7 @@ function QuizContent({ chapter, course }) {
                   {q.options.map((option, optIndex) => {
                     const isSelected = selectedAnswers[q.id] === optIndex;
                     return (
-                      <button
+      <button
                         key={optIndex}
                         onClick={() => handleAnswerSelect(q.id, optIndex)}
                         className={`w-full text-left p-3 rounded-lg transition-all duration-200 ${
@@ -457,7 +457,7 @@ function QuizContent({ chapter, course }) {
             </button>
             <button className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200">
               Review Answers
-            </button>
+      </button>
           </div>
         </div>
       </div>
