@@ -76,7 +76,7 @@ export default function App() {
             <Code2 className="text-white" size={22} />
           </div>
           <h1 className="text-xl md:text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
-            Mainframe Academy
+             z/OS Learning Hub
           </h1>
         </div>
         <button
@@ -97,7 +97,7 @@ export default function App() {
                 Learn PL/I and CICS
               </span>
             </h2>
-            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 font-medium">the Modern Way</p>
+            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 font-medium">By Robbe Van Herpe</p>
           </div>
           <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {courseIds.map((course) => (
