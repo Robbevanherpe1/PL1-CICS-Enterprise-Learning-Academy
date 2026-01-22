@@ -3,17 +3,13 @@ import { ChevronDown, ChevronUp, PlayCircle, Link as LinkIcon, Sun, Moon, Code2,
 
 // Course list - these should match the folder names in /courses
 const courseIds = [
-  { title: "Discover the origins and evolution of PL/I.", id: "pl1-origins" },
-  { title: "Learn how CICS began and evolved.", id: "cics-evolution" },
-  { title: "Setup Guide PL/I & CICS", id: "setup-guide" },
-  { title: "PL/I Basics", id: "pl1-basics" },
-  { title: "CICS Basics", id: "cics-basics" },
-  { title: "PL/I With CICS Basic", id: "pl1-cics-basic" },
-  { title: "PL/I With CICS Advanced", id: "pl1-cics-advanced" },
-  { title: "Master PL/I and CICS integration.", id: "master-integration" },
+  { title: "Origins and Evolution of PL/I and CICS", id: "pl1-cics-history" },
+  { title: "Environment Setup and Fundamentals", id: "setup-basics" },
+  { title: "PL/I Core Concepts", id: "pl1-core" },
+  { title: "CICS Core Concepts", id: "cics-core" },
+  { title: "PL/I and CICS Integration Mastery", id: "pl1-cics-mastery" }
 ];
 
-// Custom hook for dark mode
 function useDarkMode() {
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof window !== "undefined") {
