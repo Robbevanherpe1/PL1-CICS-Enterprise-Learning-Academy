@@ -8,12 +8,12 @@
       "title": "Overview",
       "parts": ["Theory", "Final Quiz"],
       "theory": {
-        "content": "Welcome to the theory section for Overview in Discover the origins and evolution of PL/I.\n\nThis section covers the essential theoretical knowledge you need to master Overview. You'll learn about the core concepts, best practices, and important principles that form the foundation of this topic.\n\nTake your time to read through the material carefully. Understanding the theory is crucial before moving on to practical exercises.",
+        "content": "<section id='history' class='space-y-4'>\n  <h2 class='text-2xl font-bold text-blue-600 dark:text-blue-400 border-b border-gray-300 dark:border-gray-700 pb-2'>History and Evolution</h2>\n  <p>PL/I (Programming Language One) was developed by IBM in the early 1960s as part of the <strong>System/360</strong> initiative to unify programming across scientific, engineering, and business domains. Officially introduced in <strong>1964</strong>, PL/I combined the computational power of <code>FORTRAN</code> with the data-handling features of <code>COBOL</code>.</p>\n  <img src='images/360.jpg' alt='IBM System/360' class='rounded-xl shadow-md w-full max-w-lg mx-auto'>\n  <p>Early compilers ran on IBM 7090 and System/360 mainframes, pioneering structured programming, recursion, and multitasking. Through the 1970s–1980s, IBM enhanced PL/I with structured constructs, advanced I/O, and strong exception handling for enterprise reliability.</p>\n</section>\n\n<section id='features' class='space-y-4'>\n  <h2 class='text-2xl font-bold text-blue-600 dark:text-blue-400 border-b border-gray-300 dark:border-gray-700 pb-2'>Technical Features and Syntax</h2>\n  <p>PL/I supports a wide range of data types including <code>FIXED</code>, <code>FLOAT</code>, <code>COMPLEX</code>, and bit strings. Its control structures — <code>DO</code>, <code>IF</code>, and <code>SELECT</code> — allowed for clear, modular programming.</p>\n  <p>Its <strong>exception handling</strong> mechanism using <code>ON</code> conditions influenced later languages such as Ada and C. PL/I also supported <strong>tasking and multitasking</strong>, enabling concurrent execution and efficient mainframe use.</p>\n</section>\n\n<section id='integration' class='space-y-4'>\n  <h2 class='text-2xl font-bold text-blue-600 dark:text-blue-400 border-b border-gray-300 dark:border-gray-700 pb-2'>Integration with IBM Mainframe</h2>\n  <p>PL/I was designed to fully leverage IBM mainframes, particularly <code>z/OS</code>, <code>MVS</code>, and <code>VM</code>. It works seamlessly with <code>VSAM</code> for file access, <code>IMS</code> for transactions, and <code>DB2</code> for database integration.</p>\n  <img src='images/original.jpg' alt='Mainframe environment' class='rounded-xl shadow-md w-full max-w-lg mx-auto'>\n  <p>Using IBM’s <strong>Enterprise PL/I Compiler</strong> and <strong>Debug Tool</strong>, developers can build and maintain reliable systems interoperable with <code>COBOL</code>, <code>C</code>, and <code>Assembler</code> through IBM’s Language Environment (LE).</p>\n</section>\n\n<section id='legacy' class='space-y-4'>\n  <h2 class='text-2xl font-bold text-blue-600 dark:text-blue-400 border-b border-gray-300 dark:border-gray-700 pb-2'>Legacy and Modern Relevance</h2>\n  <p>While modern languages like C, Java, and Python dominate new development, PL/I remains integral to mainframe modernization. Many financial and government systems continue to rely on millions of lines of PL/I code.</p>\n  <p>Its design influenced future programming paradigms in exception handling, data management, and concurrency, making it a lasting cornerstone of computing history.</p>\n  <div class='flex justify-center my-6'>\n    <iframe width='560' height='315' src='https://www.youtube-nocookie.com/embed/hYZySxNa97M?start=13&end=69&controls=0' title='PL/I Documentary' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen class='rounded-xl shadow-lg'></iframe>\n  </div>\n</section>",
         "video": null,
         "keyConcepts": [
-          "Understanding the fundamental principles and concepts",
-          "Learning the theoretical foundations",
-          "Exploring real-world applications and examples"
+          "Development of PL/I within IBM’s System/360 initiative",
+          "Innovations in exception handling and multitasking",
+          "Integration with IBM mainframes and long-term enterprise use"
         ]
       },
       "exercise": null,
@@ -21,32 +21,25 @@
         "questions": [
           {
             "id": 1,
-            "question": "What is the main purpose of this chapter?",
-            "options": [
-              "To understand basic concepts",
-              "To learn advanced techniques",
-              "To master the fundamentals",
-              "All of the above"
-            ],
-            "correct": 3
+            "question": "In what year was PL/I officially introduced?",
+            "options": ["1962", "1964", "1966", "1970"],
+            "correct": 1
           },
           {
             "id": 2,
-            "question": "Which of the following is a key concept covered?",
-            "options": [
-              "Theory and practice",
-              "Practical applications",
-              "Real-world examples",
-              "All of the above"
-            ],
-            "correct": 3
+            "question": "Which two languages influenced PL/I’s design?",
+            "options": ["C and Pascal", "COBOL and FORTRAN", "Java and Ada", "BASIC and ALGOL"],
+            "correct": 1
           }
         ]
       }
     }
   ],
   "resources": [
-    { "label": "PL/I Documentation", "url": "#" },
-    { "label": "CICS Developer Guide", "url": "#" }
+    { "label": "Radin, G. (1978) - The Early History and Characteristics of PL/I (ACM)", "url": "https://dl.acm.org/doi/pdf/10.1145/800025.1198410" },
+    { "label": "Sammet, J.E. (1981) - IBM’s Contributions to Programming Languages (IBM Journal)", "url": "https://ieeexplore.ieee.org/document/5390586" },
+    { "label": "Conway, R.W. (1983) - The Case for PL/I in Programming Instruction (Cornell University)", "url": "https://ecommons.cornell.edu/handle/1813/6411" },
+    { "label": "Ebbers, M. et al. (2016) - Introduction to the New Mainframe: IBM Z/VSE Basics (IBM Redbooks)", "url": "https://books.google.com/books?id=cJWpCwAAQBAJ" },
+    { "label": "Trott, P. (1997) - Programming Languages: Past, Present, and Future (ACM SIGPLAN Notices)", "url": "https://dl.acm.org/doi/pdf/10.1145/251595.251598" }
   ]
 }

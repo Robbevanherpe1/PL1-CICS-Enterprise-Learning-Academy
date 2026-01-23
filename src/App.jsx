@@ -366,32 +366,31 @@ function TheoryContent({ chapter, course }) {
             Theory: {chapter?.title || "Chapter"}
           </h2>
         </div>
-        
-        <VideoPlayer videoUrl={videoUrl} title="Theory Video" />
-        
-        <div className="prose prose-lg dark:prose-invert max-w-none">
-          <div className="space-y-4 text-gray-700 dark:text-gray-300 whitespace-pre-line">
-            {content.split('\n').map((paragraph, idx) => (
-              <p key={idx} className="leading-relaxed">{paragraph}</p>
-            ))}
+  
+        {/* Key Concepts FIRST */}
+        {keyConcepts && keyConcepts.length > 0 && (
+          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 rounded-xl p-6 mb-8 border border-blue-200/50 dark:border-blue-800/50">
+            <h3 className="text-xl font-semibold mb-3 text-gray-800 dark:text-gray-100">Key Concepts</h3>
+            <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+              {keyConcepts.map((concept, idx) => (
+                <li key={idx} className="flex items-start gap-2">
+                  <span className="text-blue-500 mt-1">•</span>
+                  <span>{concept}</span>
+                </li>
+              ))}
+            </ul>
           </div>
-          
-          {keyConcepts && keyConcepts.length > 0 && (
-            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 rounded-xl p-6 mt-6 border border-blue-200/50 dark:border-blue-800/50">
-              <h3 className="text-xl font-semibold mb-3 text-gray-800 dark:text-gray-100">Key Concepts</h3>
-              <ul className="space-y-2 text-gray-700 dark:text-gray-300">
-                {keyConcepts.map((concept, idx) => (
-                  <li key={idx} className="flex items-start gap-2">
-                    <span className="text-blue-500 mt-1">•</span>
-                    <span>{concept}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
+        )}
+  
+        {/* Video and theory content below */}
+        <VideoPlayer videoUrl={videoUrl} title="Theory Video" />
+  
+        <div
+          className="prose prose-lg dark:prose-invert max-w-none"
+          dangerouslySetInnerHTML={{ __html: content }}
+        />
       </div>
-
+  
       {course?.resources && course.resources.length > 0 && (
         <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl md:rounded-3xl p-6 md:p-8 shadow-lg border border-gray-200/60 dark:border-gray-800/60">
           <h3 className="text-xl font-bold mb-4 text-gray-800 dark:text-gray-100">Resources</h3>
@@ -411,7 +410,7 @@ function TheoryContent({ chapter, course }) {
       )}
     </div>
   );
-}
+}  
 
 // Exercise Content Component
 function ExerciseContent({ chapter, course }) {
